@@ -616,8 +616,8 @@ instructions! {
         I31GetU : [0xfb, 0x22] : "i31.get_u",
 
         // gc proposal, concrete casting
-        RefTest(Index<'a>) : [0xfb, 0x44] : "ref.test",
-        RefCast(Index<'a>) : [0xfb, 0x45] : "ref.cast",
+        RefTest(HeapType<'a>) : [0xfb, 0x40] : "ref.test",
+        RefCast(HeapType<'a>) : [0xfb, 0x41] : "ref.cast",
         BrOnCast(BrOnCast<'a>) : [0xfb, 0x46] : "br_on_cast",
         BrOnCastFail(BrOnCast<'a>) : [0xfb, 0x47] : "br_on_cast_fail",
 

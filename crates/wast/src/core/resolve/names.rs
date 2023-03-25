@@ -589,8 +589,8 @@ impl<'a, 'b> ExprResolver<'a, 'b> {
                 }
             }
 
-            RefTest(i) | RefCast(i) | StructNew(i) | StructNewDefault(i) | ArrayNew(i)
-            | ArrayNewDefault(i) | ArrayGet(i) | ArrayGetS(i) | ArrayGetU(i) | ArraySet(i) => {
+            StructNew(i) | StructNewDefault(i) | ArrayNew(i) | ArrayNewDefault(i) | ArrayGet(i)
+            | ArrayGetS(i) | ArrayGetU(i) | ArraySet(i) => {
                 self.resolver.resolve(i, Ns::Type)?;
             }
 
@@ -615,7 +615,9 @@ impl<'a, 'b> ExprResolver<'a, 'b> {
                 self.resolver.resolve(&mut a.src_array, Ns::Type)?;
             }
 
-            RefNull(ty) | CallRef(ty) | ReturnCallRef(ty) => self.resolver.resolve_heaptype(ty)?,
+            RefTest(ty) | RefCast(ty) | RefNull(ty) | CallRef(ty) | ReturnCallRef(ty) => {
+                self.resolver.resolve_heaptype(ty)?
+            }
 
             _ => {}
         }
