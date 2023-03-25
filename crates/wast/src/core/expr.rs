@@ -616,8 +616,8 @@ instructions! {
         I31GetU : [0xfb, 0x22] : "i31.get_u",
 
         // gc proposal, concrete casting
-        RefTest(HeapType<'a>) : [0xfb, 0x40] : "ref.test",
-        RefCast(HeapType<'a>) : [0xfb, 0x41] : "ref.cast",
+        RefTest(CastArg<'a>) : [0xfb, 0x40] : "ref.test",
+        RefCast(CastArg<'a>) : [0xfb, 0x41] : "ref.cast",
         BrOnCast(BrOnCast<'a>) : [0xfb, 0x46] : "br_on_cast",
         BrOnCastFail(BrOnCast<'a>) : [0xfb, 0x47] : "br_on_cast_fail",
 
@@ -1409,6 +1409,43 @@ impl<'a> LoadOrStoreLane<'a> {
             },
             lane: LaneArg::parse(parser)?,
         })
+    }
+}
+
+/// Extra data associated with the `ref.cast` and `ref.test` instructions.
+#[allow(missing_docs)]
+#[derive(Debug, PartialEq, Eq, Hash, Copy, Clone)]
+pub struct CastArg<'a> {
+    pub nullable: bool,
+    pub heap: HeapType<'a>,
+}
+
+impl<'a> Parse<'a> for CastArg<'a> {
+    fn parse(parser: Parser<'a>) -> Result<Self> {
+        let mut nullable = false;
+        if parser.peek::<kw::null>() {
+            parser.parse::<kw::null>()?;
+            nullable = true;
+        }
+
+        Ok(CastArg {
+            nullable,
+            heap: parser.parse()?,
+        })
+    }
+}
+
+impl<'a> Encode for CastArg<'a> {
+    fn encode(&self, e: &mut Vec<u8>) {
+        match e.last_mut() {
+            Some(opcode) if self.nullable => {
+                *opcode |= 0b1000;
+            }
+
+            _ => {}
+        }
+
+        self.heap.encode(e);
     }
 }
 
